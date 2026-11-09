@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robata Davao – Order and Reserve</title>
+<meta name="theme-color" content="#1d2b4a">
+<meta name="description" content="Order food and reserve a table at Robata, Davao City.">
+<meta property="og:title" content="Robata Davao – Order and Reserve">
+<meta property="og:description" content="Order food and reserve a table at Robata, Davao City.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231d2b4a'/%3E%3Ctext x='32' y='46' font-size='38' text-anchor='middle' fill='%23d2691e' font-family='serif' font-weight='800'%3E炉%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ash: #e8ebee;
+    --paper: #f6f7f8;
+    --indigo: #1d2b4a;
+    --indigo-soft: #3a4a6d;
+    --ember: #d2691e;
+    --ember-dark: #a8500f;
+    --char: #26282b;
+    --line: #cfd4da;
+    --ok: #2f6b4f;
+    --err: #a3262a;
+    --radius: 6px;
+    --serif: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+    --sans: "Zen Kaku Gothic New", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ash: #141a29;
+      --paper: #1b2438;
+      --indigo: #e6ebf5;
+      --indigo-soft: #aab6d0;
+      --ember: #f0954f;
+      --ember-dark: #f6b07c;
+      --char: #e8ebf1;
+      --line: #33405c;
+      --ok: #6fc29a;
+      --err: #ff8a8d;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--ash); color: var(--char);
+    font-family: var(--sans); font-size: 16px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--serif); color: var(--indigo); margin: 0; line-height: 1.2; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: var(--ember-dark); }
+  :focus-visible { outline: 3px solid var(--ember); outline-offset: 2px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .demo-banner {
+    background: var(--indigo); color: var(--paper); font-size: 14px;
+    padding: 8px 16px; text-align: center;
+  }
+  :root:not([data-theme="light"]) .demo-banner { color: var(--ash); }
+  @media (prefers-color-scheme: dark) { .demo-banner { background: var(--paper); color: var(--indigo-soft); border-bottom: 1px solid var(--line); } }
+
+  header.hero {
+    position: relative; overflow: hidden; background: var(--indigo); color: #fff;
+    padding: 40px 20px 36px;
+  }
+  @media (prefers-color-scheme: dark) { header.hero { background: #0e1424; } }
+  .hero-inner { max-width: 1040px; margin: 0 auto; display: flex; gap: 28px; align-items: flex-start; }
+  .kanji {
+    font-family: var(--serif); font-weight: 800; font-size: clamp(64px, 14vw, 120px);
+    writing-mode: vertical-rl; line-height: 1; letter-spacing: .08em; color: var(--ember);
+    flex: none;
+  }
+  .hero h1 { color: #fff; font-size: clamp(30px, 6vw, 52px); font-weight: 800; }
+  .hero p { max-width: 46ch; color: #d3daea; margin: 12px 0 20px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 44px; padding: 10px 20px; border-radius: var(--radius); border: 1.5px solid transparent;
+    background: var(--ember); color: #1a1006; font-weight: 700; cursor: pointer; text-decoration: none;
+    transition: background-color .15s, transform .1s;
+  }
+  .btn:hover { background: #e07a2d; }
+  .btn:active { transform: translateY(1px); }
+  .btn.ghost { background: transparent; border-color: currentColor; color: inherit; }
+  .btn.ghost:hover { background: rgba(255,255,255,.1); }
+  .btn.outline { background: transparent; color: var(--indigo); border-color: var(--indigo); }
+  .btn.outline:hover { background: color-mix(in srgb, var(--indigo) 8%, transparent); }
+  .btn.danger { background: transparent; color: var(--err); border-color: var(--err); min-height: 36px; padding: 4px 12px; }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .btn.small { min-height: 36px; padding: 4px 14px; }
+
+  nav.tabs {
+    position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line);
+  }
+  .tabs-inner { max-width: 1040px; margin: 0 auto; display: flex; gap: 4px; padding: 0 12px; overflow-x: auto; }
+  .tab {
+    background: none; border: 0; border-bottom: 3px solid transparent; padding: 14px 14px 11px;
+    font-weight: 700; color: var(--indigo-soft); cursor: pointer; white-space: nowrap; min-height: 48px;
+  }
+  .tab[aria-selected="true"] { color: var(--indigo); border-bottom-color: var(--ember); }
+  .badge {
+    display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 6px; border-radius: 10px;
+    background: var(--ember); color: #1a1006; font-size: 12px; line-height: 20px; text-align: center;
+  }
+  .badge:empty { display: none; }
+
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 80px; }
+  [hidden], section[hidden] { display: none !important; }
+
+  .layout { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media (min-width: 900px) { .layout { grid-template-columns: 1fr 340px; align-items: start; } }
+
+  .cats { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 20px; }
+  .chip {
+    border: 1.5px solid var(--line); background: var(--paper); border-radius: 999px;
+    padding: 6px 16px; cursor: pointer; font-weight: 500; min-height: 40px;
+  }
+  .chip[aria-pressed="true"] { background: var(--indigo); color: var(--paper); border-color: var(--indigo); }
+  @media (prefers-color-scheme: dark) { .chip[aria-pressed="true"] { color: #0e1424; } }
+
+  .menu-group h2 { font-size: 26px; margin: 24px 0 4px; }
+  .menu-group .sub { color: var(--indigo-soft); margin: 0 0 8px; font-size: 15px; }
+  .item {
+    display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 16px 0;
+    border-top: 1px solid var(--line);
+  }
+  .item h3 { font-size: 18px; font-weight: 700; }
+  .item p { margin: 2px 0 0; color: var(--indigo-soft); font-size: 15px; max-width: 52ch; }
+  .tag { display: inline-block; font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; margin-right: 4px; margin-top: 6px; color: var(--indigo-soft); }
+  .price { font-family: var(--serif); font-weight: 700; font-size: 18px; color: var(--indigo); text-align: right; }
+  .item-actions { grid-column: 2; justify-self: end; }
+
+  .qty { display: inline-flex; align-items: center; border: 1.5px solid var(--indigo); border-radius: var(--radius); overflow: hidden; }
+  .qty button { width: 40px; height: 40px; border: 0; background: transparent; font-size: 20px; cursor: pointer; color: var(--indigo); }
+  .qty button:hover { background: color-mix(in srgb, var(--indigo) 10%, transparent); }
+  .qty span { min-width: 32px; text-align: center; font-weight: 700; }
+
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  .panel h2 { font-size: 22px; margin-bottom: 12px; }
+  .cart-panel { position: sticky; top: 72px; }
+  .cart-line { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .cart-line .nm { font-weight: 500; }
+  .cart-line .sum { text-align: right; font-weight: 500; }
+  .total { display: flex; justify-content: space-between; font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--indigo); padding: 14px 0 4px; }
+  .empty { color: var(--indigo-soft); padding: 8px 0; }
+
+  form { display: grid; gap: 14px; }
+  .row { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 600px) { .row.two { grid-template-columns: 1fr 1fr; } }
+  label { display: grid; gap: 4px; font-weight: 500; font-size: 15px; }
+  input, select, textarea {
+    min-height: 44px; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: var(--radius);
+    background: var(--ash); width: 100%;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { border-color: var(--ember); }
+  .err { color: var(--err); font-size: 14px; font-weight: 700; min-height: 1em; }
+  .err:not(:empty)::before { content: "! "; }
+  .radio-row { display: flex; gap: 8px; }
+  .radio-row label { flex: 1; display: block; }
+  .radio-row input { position: absolute; opacity: 0; width: 1px; height: 1px; min-height: 0; }
+  .radio-row span {
+    display: flex; align-items: center; justify-content: center; min-height: 44px; border: 1.5px solid var(--line);
+    border-radius: var(--radius); cursor: pointer; background: var(--ash);
+  }
+  .radio-row input:checked + span { background: var(--indigo); color: var(--paper); border-color: var(--indigo); }
+  @media (prefers-color-scheme: dark) { .radio-row input:checked + span { color: #0e1424; } }
+  .radio-row input:focus-visible + span { outline: 3px solid var(--ember); outline-offset: 2px; }
+
+  .confirm { border-left: 5px solid var(--ok); }
+  .confirm h2 { color: var(--ok); }
+  .ref { font-family: var(--serif); font-weight: 800; font-size: 28px; letter-spacing: .05em; color: var(--indigo); }
+  .records { display: grid; gap: 12px; margin-top: 16px; }
+  .record { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+  .record small { color: var(--indigo-soft); display: block; }
+  h2.section-title { font-size: 28px; margin-bottom: 16px; }
+  .pill { display: inline-block; padding: 0 10px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid currentColor; }
+  .pill.new { color: var(--ember-dark); } .pill.confirmed { color: var(--ok); } .pill.done, .pill.cancelled { color: var(--indigo-soft); }
+  .rec-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+
+  .visit-grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .visit-grid { grid-template-columns: 1fr 1fr; } }
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; }
+  dt { font-weight: 700; color: var(--indigo); }
+  dd { margin: 0; }
+  .note { background: color-mix(in srgb, var(--ember) 14%, transparent); border: 1px solid var(--ember); border-radius: var(--radius); padding: 10px 14px; font-size: 14px; margin-top: 16px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); opacity: 0;
+    background: var(--indigo); color: var(--paper); padding: 10px 18px; border-radius: var(--radius);
+    pointer-events: none; transition: opacity .2s, transform .2s; z-index: 50; font-weight: 500;
+  }
+  @media (prefers-color-scheme: dark) { .toast { color: #0e1424; } }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+  footer { text-align: center; color: var(--indigo-soft); font-size: 14px; padding: 0 16px 40px; }
+</style>
+</head>
+<body>
+
+<div class="demo-banner" id="demoBanner" role="note">Sample menu, prices and hours. Edit the CONFIG block in index.html with the real details.</div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="kanji" aria-hidden="true">炉端</div>
+    <div>
+      <h1 id="shopName">Robata</h1>
+      <p id="tagline"></p>
+      <div class="hero-actions">
+        <button class="btn" data-go="menu">Order food</button>
+        <button class="btn ghost" data-go="reserve">Reserve a table</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="tabs-inner" role="tablist">
+    <button class="tab" role="tab" id="t-menu" aria-controls="p-menu" data-tab="menu">Menu</button>
+    <button class="tab" role="tab" id="t-cart" aria-controls="p-cart" data-tab="cart">Your order<span class="badge" id="cartBadge"></span></button>
+    <button class="tab" role="tab" id="t-reserve" aria-controls="p-reserve" data-tab="reserve">Reserve</button>
+    <button class="tab" role="tab" id="t-mine" aria-controls="p-mine" data-tab="mine">My bookings</button>
+    <button class="tab" role="tab" id="t-visit" aria-controls="p-visit" data-tab="visit">Visit</button>
+  </div>
+</nav>
+
+<main>
+  <!-- MENU -->
+  <section id="p-menu" role="tabpanel" aria-labelledby="t-menu">
+    <div class="layout">
+      <div>
+        <div class="cats" id="cats" role="group" aria-label="Filter menu"></div>
+        <div id="menuList"></div>
+      </div>
+      <aside class="panel cart-panel" aria-label="Order summary">
+        <h2>Your order</h2>
+        <div id="miniCart"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- CART / CHECKOUT -->
+  <section id="p-cart" role="tabpanel" aria-labelledby="t-cart" hidden>
+    <h2 class="section-title">Your order</h2>
+    <div id="orderConfirm"></div>
+    <div class="layout">
+      <div class="panel">
+        <h2>Items</h2>
+        <div id="cartList"></div>
+      </div>
+      <form class="panel" id="orderForm" novalidate>
+        <h2>Details</h2>
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend class="sr">Order type</legend>
+          <div class="radio-row">
+            <label><input type="radio" name="otype" value="Dine-in" checked><span>Dine-in</span></label>
+            <label><input type="radio" name="otype" value="Pickup"><span>Pickup</span></label>
+          </div>
+        </fieldset>
+        <label>Name<input name="name" autocomplete="name" required><span class="err" data-err="name"></span></label>
+        <label>Mobile number<input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX" required><span class="err" data-err="phone"></span></label>
+        <label id="tableWrap">Table number (optional)<input name="table" inputmode="numeric"></label>
+        <label>Notes for the kitchen<textarea name="notes" placeholder="Allergies, spice level, no onions…"></textarea></label>
+        <div class="total"><span>Total</span><span id="orderTotal">₱0.00</span></div>
+        <button class="btn" type="submit" id="placeBtn">Place order</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- RESERVE -->
+  <section id="p-reserve" role="tabpanel" aria-labelledby="t-reserve" hidden>
+    <h2 class="section-title">Reserve a table</h2>
+    <div id="resConfirm"></div>
+    <form class="panel" id="resForm" novalidate style="max-width:680px">
+      <div class="row two">
+        <label>Date<input type="date" name="date" required><span class="err" data-err="date"></span></label>
+        <label>Time<select name="time" required></select><span class="err" data-err="time"></span></label>
+      </div>
+      <div class="row two">
+        <label>Guests<select name="guests" required></select></label>
+        <label>Seating
+          <select name="seat"><option>No preference</option><option>Indoor</option><option>Counter by the grill</option><option>Outdoor</option></select>
+        </label>
+      </div>
+      <div class="row two">
+        <label>Name<input name="name" autocomplete="name" required><span class="err" data-err="name"></span></label>
+        <label>Mobile number<input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX" required><span class="err" data-err="phone"></span></label>
+      </div>
+      <label>Special requests<textarea name="notes" placeholder="Birthday, high chair, allergies…"></textarea></label>
+      <button class="btn" type="submit">Request reservation</button>
+    </form>
+  </section>
+
+  <!-- MY BOOKINGS -->
+  <section id="p-mine" role="tabpanel" aria-labelledby="t-mine" hidden>
+    <h2 class="section-title">My bookings</h2>
+    <h3>Reservations</h3>
+    <div class="records" id="resList"></div>
+    <h3 style="margin-top:28px">Orders</h3>
+    <div class="records" id="ordList"></div>
+    <p class="note">This list is saved on this device only. The restaurant receives each booking by email when you send it.</p>
+  </section>
+
+  <!-- VISIT -->
+  <section id="p-visit" role="tabpanel" aria-labelledby="t-visit" hidden>
+    <h2 class="section-title">Visit us</h2>
+    <div class="visit-grid">
+      <div class="panel">
+        <h2>Find the restaurant</h2>
+        <dl>
+          <dt>Place</dt><dd id="vName"></dd>
+          <dt>City</dt><dd id="vCity"></dd>
+          <dt>Coordinates</dt><dd id="vCoords"></dd>
+          <dt>Phone</dt><dd id="vPhone"></dd>
+        </dl>
+        <p style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn" id="dirBtn" target="_blank" rel="noopener">Get directions</a>
+          <a class="btn outline" id="mapBtn" target="_blank" rel="noopener">Open in Google Maps</a>
+        </p>
+      </div>
+      <div class="panel">
+        <h2>Opening hours (sample)</h2>
+        <dl id="hoursList"></dl>
+        <p class="note">Placeholder hours. Confirm with the restaurant.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>Sample app. Prices in Philippine pesos. No payment is taken in this demo.</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ CONFIG: replace with real details ============ */
+const CONFIG = {
+  name: "Robata",
+  tagline: "Charcoal-grilled skewers and Japanese comfort food in Davao City. Order ahead or book a table.",
+  city: "Davao City, Philippines",
+  lat: 7.0000838, lng: 125.0854896,
+  mapsLink: "https://maps.app.goo.gl/ALvcTTdP3FoxRiWj8",
+  phone: "Add phone number",
+  currency: "₱",
+  formEndpoint: "https://formspree.io/f/xzeeldgd",   // Formspree form that emails each booking
+  demo: true,         // set to false to hide the sample-content banner
+  hours: [["Monday – Thursday","11:00 – 21:00"],["Friday – Saturday","11:00 – 22:00"],["Sunday","11:00 – 21:00"]],
+  slots: { start: "11:00", end: "20:30", stepMin: 30 },
+  maxGuests: 12,
+  cats: [
+    { id: "skewers", name: "Robata skewers", sub: "Grilled over charcoal, two sticks per order" },
+    { id: "plates",  name: "Small plates",   sub: "Made for sharing" },
+    { id: "mains",   name: "Rice and noodles", sub: "Hearty bowls" },
+    { id: "drinks",  name: "Drinks and dessert", sub: "" }
+  ],
+  menu: [
+    { id:"s1", cat:"skewers", name:"Chicken thigh yakitori", desc:"Tare glaze, charred spring onion.", price:160, tags:["Popular"] },
+    { id:"s2", cat:"skewers", name:"Pork belly with salt", desc:"Crisp edges, yuzu kosho on the side.", price:180 },
+    { id:"s3", cat:"skewers", name:"Beef short rib", desc:"Soy and garlic marinade.", price:240 },
+    { id:"s4", cat:"skewers", name:"Tiger prawn", desc:"Shell-on, lemon and sea salt.", price:260 },
+    { id:"s5", cat:"skewers", name:"Shiitake and king oyster", desc:"Butter-brushed mushrooms.", price:140, tags:["Vegetarian"] },
+    { id:"p1", cat:"plates", name:"Edamame", desc:"Steamed, flaky salt.", price:120, tags:["Vegetarian"] },
+    { id:"p2", cat:"plates", name:"Chicken karaage", desc:"Double-fried, Japanese mayo.", price:220, tags:["Popular"] },
+    { id:"p3", cat:"plates", name:"Gyoza (6 pcs)", desc:"Pan-fried pork and cabbage.", price:200 },
+    { id:"p4", cat:"plates", name:"Salmon sashimi", desc:"Five slices, wasabi, pickled ginger.", price:340 },
+    { id:"m1", cat:"mains", name:"Beef yakiniku don", desc:"Grilled beef over rice with onsen egg.", price:320 },
+    { id:"m2", cat:"mains", name:"Teriyaki salmon set", desc:"Rice, miso soup, pickles.", price:380 },
+    { id:"m3", cat:"mains", name:"Shoyu ramen", desc:"Chicken broth, chashu, soft egg.", price:290 },
+    { id:"m4", cat:"mains", name:"Vegetable yaki udon", desc:"Stir-fried udon with seasonal greens.", price:240, tags:["Vegetarian"] },
+    { id:"d1", cat:"drinks", name:"Iced green tea", desc:"Unsweetened.", price:90 },
+    { id:"d2", cat:"drinks", name:"Calamansi soda", desc:"House-made syrup.", price:110 },
+    { id:"d3", cat:"drinks", name:"Matcha ice cream", desc:"Two scoops.", price:150 }
+  ]
+};
+/* =========================================================== */
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const money = n => CONFIG.currency + Number(n).toLocaleString("en-PH", {minimumFractionDigits:2, maximumFractionDigits:2});
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---- storage (safe) ---- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("robata:" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("robata:" + k, JSON.stringify(v)); } catch (e) {} }
+};
+const mem = { cart: {} };
+let cart = store.get("cart", {}) || {};
+let reservations = store.get("reservations", []) || [];
+let orders = store.get("orders", []) || [];
+let activeCat = "all";
+
+const byId = Object.fromEntries(CONFIG.menu.map(m => [m.id, m]));
+Object.keys(cart).forEach(id => { if (!byId[id] || !(cart[id] > 0)) delete cart[id]; });
+
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2200);
+}
+function ref(prefix) {
+  const a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s = "";
+  for (let i = 0; i < 5; i++) s += a[Math.floor(Math.random() * a.length)];
+  return prefix + "-" + s;
+}
+function cartCount() { return Object.values(cart).reduce((a, b) => a + b, 0); }
+function cartTotal() { return Object.entries(cart).reduce((a, [id, q]) => a + byId[id].price * q, 0); }
+function saveCart() { store.set("cart", cart); }
+
+/* ---- tabs ---- */
+function show(tab) {
+  $$("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+  ["menu","cart","reserve","mine","visit"].forEach(t => { $("#p-" + t).hidden = t !== tab; });
+  if (tab === "mine") renderMine();
+  if (tab === "cart") renderCart();
+  window.scrollTo({ top: 0 });
+}
+$$("[data-tab]").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+$$("[data-go]").forEach(b => b.addEventListener("click", () => {
+  show(b.dataset.go);
+  $(".tabs").scrollIntoView({ block: "start" });
+}));
+
+/* ---- menu ---- */
+function qtyControl(id) {
+  const q = cart[id] || 0;
+  if (!q) return `<button class="btn small" data-add="${id}" aria-label="Add ${esc(byId[id].name)} to order">Add</button>`;
+  return `<div class="qty"><button data-dec="${id}" aria-label="Remove one ${esc(byId[id].name)}">−</button><span aria-live="polite">${q}</span><button data-inc="${id}" aria-label="Add one ${esc(byId[id].name)}">+</button></div>`;
+}
+function renderCats() {
+  const all = [{ id:"all", name:"All" }, ...CONFIG.cats];
+  $("#cats").innerHTML = all.map(c => `<button class="chip" data-cat="${c.id}" aria-pressed="${c.id === activeCat}">${esc(c.name)}</button>`).join("");
+}
+function renderMenu() {
+  const cats = CONFIG.cats.filter(c => activeCat === "all" || c.id === activeCat);
+  $("#menuList").innerHTML = cats.map(c => {
+    const items = CONFIG.menu.filter(m => m.cat === c.id);
+    return `<div class="menu-group"><h2>${esc(c.name)}</h2>${c.sub ? `<p class="sub">${esc(c.sub)}</p>` : ""}` +
+      items.map(m => `<div class="item"><div><h3>${esc(m.name)}</h3><p>${esc(m.desc)}</p>${(m.tags||[]).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div><div class="price">${money(m.price)}</div><div class="item-actions">${qtyControl(m.id)}</div></div>`).join("") + `</div>`;
+  }).join("");
+}
+function cartLines(editable) {
+  const entries = Object.entries(cart);
+  if (!entries.length) return `<p class="empty">Nothing here yet. Add dishes from the menu.</p>`;
+  return entries.map(([id, q]) => `<div class="cart-line"><div class="nm">${esc(byId[id].name)}<br><small>${money(byId[id].price)} each</small></div><div class="sum">${money(byId[id].price * q)}</div><div>${qtyControl(id)}</div><div></div></div>`).join("");
+}
+function renderMini() {
+  const n = cartCount();
+  $("#miniCart").innerHTML = cartLines() + (n ? `<div class="total"><span>Total</span><span>${money(cartTotal())}</span></div><button class="btn" style="width:100%" data-tab-go="cart">Review and checkout</button>` : "");
+}
+function renderCart() {
+  $("#cartList").innerHTML = cartLines();
+  $("#orderTotal").textContent = money(cartTotal());
+  $("#placeBtn").disabled = cartCount() === 0;
+}
+function refresh() {
+  saveCart();
+  $("#cartBadge").textContent = cartCount() || "";
+  renderMenu(); renderMini();
+  if (!$("#p-cart").hidden) renderCart();
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.cat) { activeCat = t.dataset.cat; renderCats(); renderMenu(); return; }
+  if (t.dataset.tabGo) { show(t.dataset.tabGo); return; }
+  const id = t.dataset.add || t.dataset.inc || t.dataset.dec;
+  if (!id || !byId[id]) return;
+  if (t.dataset.dec) { cart[id] = (cart[id] || 0) - 1; if (cart[id] <= 0) delete cart[id]; }
+  else { cart[id] = Math.min(20, (cart[id] || 0) + 1); }
+  refresh();
+  const focus = document.querySelector(`[data-inc="${id}"], [data-add="${id}"]`);
+  if (focus && t.dataset.dec !== undefined && !cart[id]) focus.focus(); else if (focus) focus.focus();
+});
+
+/* ---- validation ---- */
+function validPhone(v) { const d = v.replace(/[\s\-()]/g, ""); return /^(\+63|0)9\d{9}$/.test(d) || /^\+?\d{7,15}$/.test(d); }
+function setErr(form, name, msg) { const el = form.querySelector(`[data-err="${name}"]`); if (el) el.textContent = msg || ""; }
+
+/* ---- order ---- */
+$$('input[name="otype"]').forEach(r => r.addEventListener("change", () => {
+  $("#tableWrap").hidden = $('input[name="otype"]:checked').value !== "Dine-in";
+}));
+$("#orderForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, d = new FormData(f);
+  const name = (d.get("name") || "").trim(), phone = (d.get("phone") || "").trim();
+  setErr(f, "name", name ? "" : "Enter your name."); setErr(f, "phone", validPhone(phone) ? "" : "Enter a valid mobile number.");
+  if (!name || !validPhone(phone)) return;
+  if (!cartCount()) { toast("Add at least one dish first."); return; }
+  const order = {
+    id: ref("ORD"), created: new Date().toISOString(), type: d.get("otype"), name, phone,
+    table: (d.get("table") || "").trim(), notes: (d.get("notes") || "").trim(),
+    items: Object.entries(cart).map(([id, q]) => ({ name: byId[id].name, qty: q, price: byId[id].price })),
+    total: cartTotal()
+  };
+  const pb = $("#placeBtn"); pb.disabled = true; pb.textContent = "Sending…";
+  order.sent = await send("order", order);
+  pb.textContent = "Place order";
+  orders.unshift(order); store.set("orders", orders);
+  cart = {}; refresh(); f.reset(); $("#tableWrap").hidden = false;
+  $("#orderConfirm").innerHTML = `<div class="panel confirm" style="margin-bottom:24px"><h2>Order placed</h2><p>Your order reference is</p><div class="ref">${esc(order.id)}</div><p>${esc(order.type)} · ${money(order.total)}. Show this reference to the staff${order.type === "Pickup" ? " when you pick up" : ""}. Payment is made at the restaurant.</p>${sentNote(order.sent)}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn" type="button" data-tab-go="mine">View my orders</button><button class="btn outline" type="button" data-tab-go="menu">Back to menu</button></div></div>`;
+  renderCart(); window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* ---- reservation ---- */
+function pad(n) { return String(n).padStart(2, "0"); }
+function todayStr() { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function buildSlots() {
+  const [sh, sm] = CONFIG.slots.start.split(":").map(Number), [eh, em] = CONFIG.slots.end.split(":").map(Number);
+  const out = []; for (let m = sh*60+sm; m <= eh*60+em; m += CONFIG.slots.stepMin) out.push(`${pad(Math.floor(m/60))}:${pad(m%60)}`);
+  return out;
+}
+function label12(t) { const [h, m] = t.split(":").map(Number); return `${((h+11)%12)+1}:${pad(m)} ${h < 12 ? "AM" : "PM"}`; }
+function fillTimes() {
+  const f = $("#resForm"), date = f.date.value, now = new Date(), cur = f.time.value;
+  const isToday = date === todayStr(), nowMin = now.getHours()*60 + now.getMinutes();
+  f.time.innerHTML = `<option value="">Select time</option>` + buildSlots().map(t => {
+    const [h, m] = t.split(":").map(Number), past = isToday && (h*60+m) <= nowMin + 30;
+    return `<option value="${t}" ${past ? "disabled" : ""}>${label12(t)}${past ? " (unavailable)" : ""}</option>`;
+  }).join("");
+  if (cur) f.time.value = cur;
+  if (!f.time.value) { const first = f.time.querySelector("option[value]:not([value='']):not([disabled])"); if (first) f.time.value = first.value; }
+}
+(function initRes() {
+  const f = $("#resForm");
+  f.date.min = todayStr(); f.date.value = todayStr();
+  f.guests.innerHTML = Array.from({ length: CONFIG.maxGuests }, (_, i) => `<option value="${i+1}" ${i === 1 ? "selected" : ""}>${i+1} ${i ? "guests" : "guest"}</option>`).join("");
+  fillTimes(); f.date.addEventListener("change", fillTimes);
+})();
+$("#resForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, d = new FormData(f);
+  const date = d.get("date"), time = d.get("time"), name = (d.get("name")||"").trim(), phone = (d.get("phone")||"").trim();
+  const dateOk = date && date >= todayStr();
+  setErr(f, "date", dateOk ? "" : "Pick today or a future date.");
+  setErr(f, "time", time ? "" : "Select a time.");
+  setErr(f, "name", name ? "" : "Enter your name.");
+  setErr(f, "phone", validPhone(phone) ? "" : "Enter a valid mobile number.");
+  if (!dateOk || !time || !name || !validPhone(phone)) {
+    const bad = !dateOk ? f.date : !time ? f.time : !name ? f.querySelector("[name=name]") : f.querySelector("[name=phone]");
+    bad.focus(); bad.scrollIntoView({ block: "center", behavior: "smooth" });
+    toast("Please fix the highlighted fields.");
+    return;
+  }
+  const r = { id: ref("RES"), date, time, guests: Number(d.get("guests")), seat: d.get("seat"), name, phone, notes: (d.get("notes")||"").trim(), created: new Date().toISOString() };
+  const sb = f.querySelector("button[type=submit]"); sb.disabled = true; sb.textContent = "Sending…";
+  r.sent = await send("reservation", r);
+  sb.disabled = false; sb.textContent = "Request reservation";
+  reservations.unshift(r); store.set("reservations", reservations);
+  f.reset(); f.date.value = todayStr(); f.guests.value = "2"; fillTimes();
+  const nice = new Date(date + "T00:00").toLocaleDateString("en-PH", { weekday:"long", month:"long", day:"numeric" });
+  $("#resConfirm").innerHTML = `<div class="panel confirm" style="margin-bottom:24px;max-width:680px"><h2>Reservation requested</h2><p>Reference</p><div class="ref">${esc(r.id)}</div><p>${esc(nice)}, ${label12(time)} for ${r.guests} ${r.guests === 1 ? "guest" : "guests"}. The restaurant will confirm by phone. Save your reference.</p>${sentNote(r.sent)}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn" type="button" data-tab-go="mine">View my bookings</button><button class="btn outline" type="button" data-tab-go="menu">Pre-order food</button><button class="btn outline" type="button" data-new-res>Make another reservation</button></div></div>`;
+  f.hidden = true; toast("Reservation requested");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+document.addEventListener("click", e => {
+  if (!e.target.closest("[data-new-res]")) return;
+  $("#resConfirm").innerHTML = ""; $("#resForm").hidden = false; window.scrollTo({ top: 0 });
+});
+
+/* ---- my bookings ---- */
+function renderMine() {
+  $("#resList").innerHTML = reservations.length ? reservations.map(r => {
+    const nice = new Date(r.date + "T00:00").toLocaleDateString("en-PH", { weekday:"short", month:"short", day:"numeric" });
+    return `<div class="record"><div><strong>${esc(r.id)}</strong><small>${esc(nice)}, ${label12(r.time)} · ${r.guests} ${r.guests === 1 ? "guest" : "guests"} · ${esc(r.seat)}</small><small>${esc(r.name)} · ${esc(r.phone)}</small>${r.notes ? `<small>Note: ${esc(r.notes)}</small>` : ""}</div><button class="btn danger" data-cancel-res="${esc(r.id)}">Cancel</button></div>`;
+  }).join("") : `<p class="empty">No reservations yet.</p>`;
+  $("#ordList").innerHTML = orders.length ? orders.map(o => `<div class="record"><div><strong>${esc(o.id)}</strong><small>${esc(o.type)} · ${new Date(o.created).toLocaleString("en-PH", { dateStyle:"medium", timeStyle:"short" })}</small><small>${o.items.map(i => `${i.qty}× ${esc(i.name)}`).join(", ")}</small></div><div class="price">${money(o.total)}</div></div>`).join("") : `<p class="empty">No orders yet.</p>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-cancel-res]"); if (!b) return;
+  if (!confirm("Cancel this reservation?")) return;
+  reservations = reservations.filter(r => r.id !== b.dataset.cancelRes);
+  store.set("reservations", reservations); renderMine(); toast("Reservation cancelled");
+});
+
+/* ---- visit ---- */
+function initVisit() {
+  const banner = $("#demoBanner");
+  if (!CONFIG.demo && CONFIG.formEndpoint) banner.hidden = true;
+  else if (!CONFIG.formEndpoint) banner.textContent = "Booking email is not connected yet. Add your form URL to CONFIG.formEndpoint in index.html.";
+  $("#shopName").textContent = CONFIG.name; $("#tagline").textContent = CONFIG.tagline;
+  $("#vName").textContent = CONFIG.name; $("#vCity").textContent = CONFIG.city;
+  $("#vCoords").textContent = `${CONFIG.lat.toFixed(5)}, ${CONFIG.lng.toFixed(5)}`;
+  $("#vPhone").textContent = CONFIG.phone;
+  $("#dirBtn").href = `https://www.google.com/maps/dir/?api=1&destination=${CONFIG.lat},${CONFIG.lng}`;
+  $("#mapBtn").href = CONFIG.mapsLink;
+  $("#hoursList").innerHTML = CONFIG.hours.map(([d, h]) => `<dt>${esc(d)}</dt><dd>${esc(h)}</dd>`).join("");
+}
+
+/* ---- send bookings to the restaurant's email (via a form service) ---- */
+function summarize(kind, r) {
+  if (kind === "reservation") {
+    const nice = new Date(r.date + "T00:00").toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    return `Reservation\nDate: ${nice}\nTime: ${label12(r.time)}\nGuests: ${r.guests}\nSeating: ${r.seat}`;
+  }
+  const lines = r.items.map(i => `${i.qty} x ${i.name} (${money(i.price * i.qty)})`).join("\n");
+  return `Order (${r.type}${r.table ? ", table " + r.table : ""})\n${lines}\nTotal: ${money(r.total)}`;
+}
+async function send(kind, rec) {
+  if (!CONFIG.formEndpoint) return false;
+  try {
+    const res = await fetch(CONFIG.formEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        _subject: `New ${kind} ${rec.id} - ${rec.name}`,
+        reference: rec.id, name: rec.name, phone: rec.phone,
+        details: summarize(kind, rec), notes: rec.notes || ""
+      })
+    });
+    return res.ok;
+  } catch (e) { return false; }
+}
+function sentNote(ok) {
+  return ok ? `<p><strong>Sent to the restaurant.</strong></p>`
+    : `<p class="err" style="font-size:15px">This could not be sent to the restaurant. Check your connection and try again, or contact the restaurant directly.</p>`;
+}
+
+initVisit(); renderCats(); refresh(); show("menu");
+</script>
+</body>
+</html>
